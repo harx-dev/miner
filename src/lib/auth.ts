@@ -49,7 +49,7 @@ export const authOptions: NextAuthOptions = {
         // Return user details for the session
         return {
           id: `${existingUser.id}`,
-          username: existingUser.username || "",
+          name: existingUser.name,
           email: existingUser.email,
         };
       },
@@ -65,13 +65,13 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.username = user.username || token.username;
+        token.name = user.name || token.name;
       }
       return token;
     },
 
     async session({ session, token }) {
-      session.user.username = token.username as string | null;
+      session.user.name = token.name as string | null;
       return session;
     },
   },

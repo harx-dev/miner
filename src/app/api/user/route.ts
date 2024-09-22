@@ -5,7 +5,7 @@ import * as z from "zod"
 
 const userSchema = z
   .object({
-    username: z.string().min(1, 'Username is required').max(100),
+    name: z.string().min(1, 'name is required').max(100),
     email: z.string().min(1, 'Email is required').email('Invalid email'),
     password: z
       .string()
@@ -18,7 +18,7 @@ const userSchema = z
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { email, username, password } = userSchema.parse(body);
+    const { email, name, password } = userSchema.parse(body);
 
     //check if email already exists
     const existingUserByEmail = await prisma.user.findUnique({
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     const hashedPassword=await hash(password,10)
     const newUser=await prisma.user.create({
         data: {
-            username,
+            name,
             email,
             password:hashedPassword
         }

@@ -20,7 +20,7 @@ import { useState } from "react";
 
 const FormSchema = z
   .object({
-    username: z.string().min(1, "Username is required").max(100),
+    name: z.string().min(1, "name is required").max(100),
     email: z.string().min(1, "Email is required").email("Invalid email"),
     password: z
       .string()
@@ -40,7 +40,7 @@ const SignUpForm = () => {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      username: "",
+      name: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -55,7 +55,7 @@ const SignUpForm = () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        username: values.username,
+        name: values.name,
         email: values.email,
         password: values.password,
       }),
@@ -76,10 +76,10 @@ const SignUpForm = () => {
           <div className="space-y-2">
             <FormField
               control={form.control}
-              name="username"
+              name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>name</FormLabel>
                   <FormControl>
                     <Input placeholder="johndoe" {...field} />
                   </FormControl>
