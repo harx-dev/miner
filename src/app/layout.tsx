@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import "./globals.css";
+import Provider from "./provider";
 
 
 
@@ -19,9 +20,11 @@ export default function RootLayout({
       <body
         className={`antialiased`}
       >
+        <Provider>
       <main className='h-screen flex flex-col justify-center items-center'>
           {children}
         </main>
+        </Provider>
       </body>
     </html>
   );

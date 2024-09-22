@@ -1,5 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "./db";
 import { compare } from "bcrypt";
@@ -13,6 +14,7 @@ export const authOptions: NextAuthOptions = {
     signIn: "/signin",
   },
   providers: [
+    // Credentials Provider for email/password login
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -23,46 +25,54 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
+
+        // Check if the user exists
         const existingUser = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
-        if (!existingUser) {
+
+        if (!existingUser || !existingUser.password) {
+          // If the user doesn't exist or has no password (Google user), return null
           return null;
         }
+
+        // Compare the provided password with the stored hashed password
         const passwordMatch = await compare(
           credentials.password,
           existingUser.password
         );
+
         if (!passwordMatch) {
           return null;
         }
+
+        // Return user details for the session
         return {
           id: `${existingUser.id}`,
-          username: existingUser.username,
+          username: existingUser.username || "",
           email: existingUser.email,
         };
       },
     }),
+
+    // Google OAuth Provider
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
   ],
+
   callbacks: {
     async jwt({ token, user }) {
-      // Customize the token that is returned to the client
       if (user) {
-        return {
-            ...token,
-            username:user.username
-        }
+        token.username = user.username || token.username;
       }
       return token;
     },
+
     async session({ session, token }) {
-        return{
-          ...session,
-          user:{
-              ...session.user,
-              username:token.username
-          }
-        }
-      },
+      session.user.username = token.username as string | null;
+      return session;
+    },
   },
 };

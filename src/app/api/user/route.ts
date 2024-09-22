@@ -20,17 +20,6 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { email, username, password } = userSchema.parse(body);
 
-    //check if Username already exists
-    const existingUserByUsername = await prisma.user.findUnique({
-      where: { username: username },
-    });
-    if (existingUserByUsername) {
-      return NextResponse.json(
-        { user: null, message: "User with this UserName already Exist" },
-        { status: 409 }
-      );
-    }
-
     //check if email already exists
     const existingUserByEmail = await prisma.user.findUnique({
       where: { email: email },
